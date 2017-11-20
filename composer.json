@@ -1,0 +1,32 @@
+{
+    "name": "ganbarodigital/php-mv-s3-filesystem-sdk3",
+    "type": "library",
+    "license": "BSD-3-Clause",
+    "authors": [
+        { "name": "Stuart Herbert", "email": "stuart@stuartherbert.com" }
+    ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/ganbarodigital/php-mv-filesystem"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/stuartherbert/Couscous"
+        }
+    ],
+    "require": {
+        "ganbarodigital/php-mv-filesystem": "dev-develop as 1.2017112001",
+        "ganbarodigital/php-the-missing-bits": "dev-develop as 1.10.0",
+        "ganbarodigital/php-mv-adapters-plugins": "dev-develop as 1.2017111401",
+        "php": ">= 7.0"
+	},
+	"require-dev": {
+        "couscous/couscous": "dev-develop"
+    },
+    "autoload": {
+        "psr-4": {
+            "GanbaroDigital\\S3Filesystem\\": "src/"
+        }
+    }
+}
