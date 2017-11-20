@@ -19,7 +19,8 @@
         "ganbarodigital/php-mv-filesystem": "dev-develop as 1.2017112001",
         "ganbarodigital/php-the-missing-bits": "dev-develop as 1.10.0",
         "ganbarodigital/php-mv-adapters-plugins": "dev-develop as 1.2017111401",
-        "php": ">= 7.0"
+        "php": ">= 7.0",
+        "aws/aws-sdk-php": "^3.38"
 	},
 	"require-dev": {
         "couscous/couscous": "dev-develop"
