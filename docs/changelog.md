@@ -11,4 +11,5 @@
   - added `S3FilesystemContents`
 * Added internal helpers
   - added `CallListObjectsV2'
+  - added `GetFileInfoByPath`
   - added `GetFilesystemContents`
