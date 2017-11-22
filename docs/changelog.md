@@ -2,4 +2,7 @@
 
 ## develop branch
 
-Nothing yet.
+### New
+
+* Added values to represent things on the filesystem
+  - added `S3PathInfo`
