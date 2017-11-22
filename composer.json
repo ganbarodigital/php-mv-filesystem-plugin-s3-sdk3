@@ -1,5 +1,5 @@
 {
-    "name": "ganbarodigital/php-mv-s3-filesystem-sdk3",
+    "name": "ganbarodigital/php-mv-filesystem-plugin-s3-sdk3",
     "type": "library",
     "license": "BSD-3-Clause",
     "authors": [
