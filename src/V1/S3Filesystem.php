@@ -90,7 +90,7 @@ class S3Filesystem implements Filesystem
         $this->bucketName = $bucketName;
 
         // we go and get the contents straight away
-        $this->contents = Helpers\GetFilesystemContents::from($this);
+        $this->contents = Internal\GetFilesystemContents::from($this);
     }
 
     /**
