@@ -8,3 +8,4 @@
   - added `S3PathInfo`
   - added `S3FileInfo`
   - added `S3Filesystem`
+  - added `S3FilesystemContents`
