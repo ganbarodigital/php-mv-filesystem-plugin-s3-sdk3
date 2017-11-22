@@ -47,6 +47,8 @@ use Aws\S3\S3Client;
 use GanbaroDigital\Filesystem\V1\FileInfo;
 use GanbaroDigital\Filesystem\V1\Filesystem;
 use GanbaroDigital\Filesystem\V1\FilesystemContents;
+use GanbaroDigital\Filesystem\V1\PathInfo;
+use GanbaroDigital\Filesystem\V1\TypeConverters;
 use GanbaroDigital\S3Filesystem\V1\Internal;
 use GanbaroDigital\MissingBits\ErrorResponders\OnFatal;
 
@@ -77,20 +79,33 @@ class S3Filesystem implements Filesystem
     protected $contents;
 
     /**
+     * which prefix should we use for paths on this filesystem?
+     *
+     * @var string
+     */
+    protected $fsPrefix;
+
+    /**
      * our constructor
      *
+     * @param string $fsPrefix
+     *        what prefix is this filesystem known by?
      * @param S3Client $s3Client
      *        how we will talk to S3
      * @param string $bucketName
      *        which bucket are we representing?
      */
-    public function __construct(S3Client $s3Client, string $bucketName)
+    public function __construct(string $fsPrefix, S3Client $s3Client, string $bucketName)
     {
+        $this->fsPrefix = $fsPrefix;
         $this->s3Client = $s3Client;
         $this->bucketName = $bucketName;
 
         // we go and get the contents straight away
-        $this->contents = Internal\GetFilesystemContents::from($this);
+        $this->contents = Internal\GetFilesystemContents::from(
+            $this,
+            TypeConverters\ToPrefixedPath::from($fsPrefix, "/")
+        );
     }
 
     /**
@@ -115,15 +130,25 @@ class S3Filesystem implements Filesystem
     // ------------------------------------------------------------------
 
     /**
+     * which prefix should we use for paths on this filesystem?
+     *
+     * @return string
+     */
+    public function getFilesystemPrefix() : string
+    {
+        return $this->fsPrefix;
+    }
+
+    /**
      * retrieve a folder from the filesystem
      *
-     * @param  string $fullPath
+     * @param  string|PathInfo $fullPath
      *         path to the folder
      * @param  OnFatal $onFailure
      *         what do we do if we do not have the folder?
      * @return FilesystemContents
      */
-    public function getFolder(string $fullPath, OnFatal $onFatal) : FilesystemContents
+    public function getFolder($fullPath, OnFatal $onFatal) : FilesystemContents
     {
         return Internal\GetFileInfoByPath::from($this->contents, $fullPath, $onFatal);
     }
@@ -131,13 +156,13 @@ class S3Filesystem implements Filesystem
     /**
      * get detailed information about something on the filesystem
      *
-     * @param  string $fullPath
+     * @param  string|PathInfo $fullPath
      *         the full path to the thing you are interested in
      * @param  OnFatal $onFatal
      *         what do we do if we do not have it?
      * @return FileInfo
      */
-    public function getFileInfo(string $fullPath, OnFatal $onFatal) : FileInfo
+    public function getFileInfo($fullPath, OnFatal $onFatal) : FileInfo
     {
         return Internal\GetFileInfoByPath::from($this->contents, $fullPath, $onFatal);
     }

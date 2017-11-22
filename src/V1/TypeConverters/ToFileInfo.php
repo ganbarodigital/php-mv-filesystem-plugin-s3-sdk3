@@ -65,7 +65,7 @@ class ToFileInfo implements PluginClass
      *         what do we do when we can't find $path?
      * @return S3FileInfo
      */
-    public static function from(S3Filesystem $fs, string $path, OnFatal $onFatal) : S3FileInfo
+    public static function from(S3Filesystem $fs, $path, OnFatal $onFatal) : S3FileInfo
     {
         // does it need converting?
         if ($path instanceof S3FileInfo) {

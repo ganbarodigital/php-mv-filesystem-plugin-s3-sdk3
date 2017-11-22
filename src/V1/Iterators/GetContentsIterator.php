@@ -45,6 +45,8 @@ namespace GanbaroDigital\S3Filesystem\V1\Iterators;
 
 use GanbaroDigital\AdaptersAndPlugins\V1\PluginTypes\PluginClass;
 use GanbaroDigital\Filesystem\V1\Iterators\RecursiveFilesystemContentsIterator;
+use GanbaroDigital\Filesystem\V1\PathInfo;
+use GanbaroDigital\Filesystem\V1\TypeConverters;
 use GanbaroDigital\S3Filesystem\V1\Internal;
 use GanbaroDigital\S3Filesystem\V1\S3FileInfo;
 use GanbaroDigital\S3Filesystem\V1\S3Filesystem;
@@ -62,17 +64,22 @@ class GetContentsIterator implements PluginClass
      *
      * @param  S3Filesystem $fs
      *         our filesystem
-     * @param  string $path
+     * @param  string|PathInfo $path
      *         where we want to search from
      * @param  OnFatal $onFatal
      *         what do we do if we cannot create the iterator?
      * @return RecursiveIterator
      *         the iterator to use
      */
-    public static function for(S3Filesystem $fs, string $path, OnFatal $onFatal) : RecursiveIterator
+    public static function for(S3Filesystem $fs, $path, OnFatal $onFatal) : RecursiveIterator
     {
-        $contents  = $fs->getFolder("/", $onFatal);
-        $topFolder = Internal\GetFileInfoByPath::from($contents, $path, $onFatal);
+        // what are we looking at?
+        $pathInfo = TypeConverters\ToPathInfo::from($path);
+
+        $topFolder = $fs->getFolder(
+            TypeConverters\ToPrefixedPath::from($pathInfo, "/"),
+            $onFatal
+        );
 
         return new RecursiveFilesystemContentsIterator($topFolder);
     }

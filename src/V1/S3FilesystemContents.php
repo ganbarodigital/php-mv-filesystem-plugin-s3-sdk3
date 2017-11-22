@@ -47,6 +47,8 @@ use Aws\S3\S3Client;
 use GanbaroDigital\Filesystem\V1\FileInfo;
 use GanbaroDigital\Filesystem\V1\Filesystem;
 use GanbaroDigital\Filesystem\V1\FilesystemContents;
+use GanbaroDigital\Filesystem\V1\PathInfo;
+use GanbaroDigital\Filesystem\V1\TypeConverters;
 use GanbaroDigital\S3Filesystem\V1\Internal;
 use GanbaroDigital\MissingBits\ErrorResponders\OnFatal;
 
@@ -95,16 +97,8 @@ class S3FilesystemContents extends S3FileInfo implements FilesystemContents
      */
     public function getFileInfo(string $filename, OnFatal $onFatal) : FileInfo
     {
-        // what do we have?
-        $node = $this->contents[$filename];
-
-        switch(true) {
-            case $node instanceof S3FileInfo:
-                return $node;
-
-            default:
-                return new S3FileInfo($node['Key'], $node);
-        }
+        // everything we store is already a FileInfo
+        return $this->contents[$filename];
     }
 
     // ==================================================================
@@ -157,7 +151,9 @@ class S3FilesystemContents extends S3FileInfo implements FilesystemContents
      */
     public function trackFile(string $filename, $fileDetails)
     {
-        $this->contents[$filename] = $fileDetails;
+        $this->contents[$filename] = new S3FileInfo(
+            $this->getPrefixedPath() . '/' . $filename, $fileDetails
+        );
     }
 
     // ==================================================================
@@ -210,7 +206,7 @@ class S3FilesystemContents extends S3FileInfo implements FilesystemContents
      */
     public function trackFolder(string $filename, $fileInfo)
     {
-        $fullPath = $this->getFullPath() . '/' . $filename;
+        $fullPath = $this->getPrefixedPath() . '/' . $filename;
 
         $this->contents[$filename] = new S3FilesystemContents(
             $fullPath,
@@ -219,6 +215,5 @@ class S3FilesystemContents extends S3FileInfo implements FilesystemContents
             ]
         );
         return $this->contents[$filename];
-
     }
 }

@@ -44,6 +44,8 @@
 namespace GanbaroDigital\S3Filesystem\V1\Internal;
 
 use GanbaroDigital\MissingBits\ErrorResponders\OnFatal;
+use GanbaroDigital\Filesystem\V1\PathInfo;
+use GanbaroDigital\Filesystem\V1\TypeConverters;
 use GanbaroDigital\S3Filesystem\V1\S3FileInfo;
 use GanbaroDigital\S3Filesystem\V1\S3Filesystem;
 use GanbaroDigital\S3Filesystem\V1\S3FilesystemContents;
@@ -58,28 +60,32 @@ class GetFileInfoByPath
      *
      * @param  S3FilesystemContents $contents
      *         what's in the S3 bucket
-     * @param  string $path
+     * @param  string|PathInfo $path
      *         the path to search
      * @param  OnFatal $onFatal
      *         what do we do if we cannot create the iterator?
      * @return S3FileInfo
      *         the file or folder at that path
      */
-    public static function from(S3FilesystemContents $contents, string $path, OnFatal $onFatal) : S3FileInfo
+    public static function from(S3FilesystemContents $contents, $path, OnFatal $onFatal) : S3FileInfo
     {
+        // what are we looking at?
+        $pathInfo = TypeConverters\ToPathInfo::from($path);
+        $fullPath = $pathInfo->getFullPath();
+
         // special case
-        if ($path == '/') {
+        if ($fullPath == '/') {
             return $contents;
         }
 
         // general case
-        $parts = explode("/", $path);
+        $parts = explode("/", $fullPath);
         if ($parts[0] == '') {
             array_shift($parts);
         }
 
         $retval = $contents;
-        $seen = "";
+        $seen = $pathInfo->getFilesystemPrefix();
         foreach ($parts as $part) {
             if (!$retval->hasFolder($part)) {
                 throw $onFatal("{$seen}/{$part}", "path not found");

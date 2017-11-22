@@ -45,6 +45,7 @@ namespace GanbaroDigital\S3Filesystem\V1;
 
 use GanbaroDigital\Filesystem\V1\Helpers as VfsHelpers;
 use GanbaroDigital\Filesystem\V1\PathInfo;
+use GanbaroDigital\Filesystem\V1\Path;
 
 /**
  * represents a path on a filesystem
@@ -52,90 +53,6 @@ use GanbaroDigital\Filesystem\V1\PathInfo;
  * this is a lightweight value that only knows about the path itself,
  * and knows nothing about what the path points at
  */
-class S3PathInfo implements PathInfo
+class S3PathInfo extends Path
 {
-    /**
-     * what's the full filename on the filesystem?
-     *
-     * @var string
-     */
-    protected $fullPath;
-
-    /**
-     * our constructor
-     *
-     * @param string $fullPath
-     *        the 'Key' from the S3 bucket object
-     */
-    public function __construct($fullPath)
-    {
-        $this->fullPath = $fullPath;
-    }
-
-    /**
-     * what is the filename itself?
-     *
-     * this includes any parent folders, and the filename extension
-     *
-     * @return string
-     */
-    public function getFullPath() : string
-    {
-        return $this->fullPath;
-    }
-
-    /**
-     * what is the filename, without any parent folders?
-     *
-     * @return string
-     */
-    public function getBasename() : string
-    {
-        // we only want to build this once
-        static $basename = false;
-        if (!$basename) {
-            $basename = basename($this->fullPath);
-        }
-
-        // all done
-        return $basename;
-    }
-
-    /**
-     * what is the parent folder for this filename?
-     *
-     * returns '.' if there is no parent folder
-     *
-     * @return string
-     */
-    public function getDirname() : string
-    {
-        // we only want to build this once
-        static $dirname = false;
-        if (!$dirname) {
-            $dirname = dirname($this->fullPath);
-        }
-
-        // all done
-        return $dirname;
-    }
-
-    /**
-     * what is the file extension of this path info?
-     *
-     * we return an empty string if the filename has no extension
-     *
-     * @return string
-     */
-    public function getExtension() : string
-    {
-        static $ext = false;
-
-        if (!$ext) {
-            $ext = pathinfo($this->fullPath, PATHINFO_EXTENSION);
-        }
-
-        return $ext;
-    }
-
 }

@@ -43,6 +43,8 @@
 
 namespace GanbaroDigital\S3Filesystem\V1\Internal;
 
+use GanbaroDigital\Filesystem\V1\PathInfo;
+use GanbaroDigital\Filesystem\V1\TypeConverters;
 use GanbaroDigital\MissingBits\ErrorResponders\OnFatal;
 use GanbaroDigital\S3Filesystem\V1\Internal;
 use GanbaroDigital\S3Filesystem\V1\S3FileInfo;
@@ -61,16 +63,21 @@ class GetFilesystemContents
      *
      * @param  S3Filesystem $fs
      *         the filesystem to search
+     * @param  string|PathInfo $path
+     *         the path to search for
      * @return S3FilesystemContents
      */
-    public static function from(S3Filesystem $fs) : S3FilesystemContents
+    public static function from(S3Filesystem $fs, $path) : S3FilesystemContents
     {
         // shorthand
-        $retval = new S3FilesystemContents("", [ 'Key' => '' ]);
+        $fsPrefix = $fs->getFilesystemPrefix();
+        $pathInfo = TypeConverters\ToPathInfo::from($path);
+
+        $retval = new S3FilesystemContents($pathInfo, [ 'Key' => '' ]);
         $continuationToken = null;
 
         do  {
-            $result = Internal\CallListObjectsV2::using($fs, "/", $continuationToken);
+            $result = Internal\CallListObjectsV2::using($fs, $pathInfo->getFullPath(), $continuationToken);
             $continuationToken = $result['NextContinuationToken'] ?? null;
 
             foreach ($result['Contents'] ?? [] as $bucketObject) {
@@ -103,23 +110,20 @@ class GetFilesystemContents
             throw new \RuntimeException("Cannot find $path: $reason");
         });
 
-        // keep track of the path as we descend it
-        $pathSoFar = "";
-
         // start from the top of the contents tree
         $dest = $contents;
 
         // make sure all the parent folders exist
         foreach ($parts as $part) {
-            $pathSoFar .= "/{$part}";
             if (!$dest->hasFolder($part)) {
-                $dest->trackFolder($part, ['Key' => $pathSoFar]);
+                $pathSoFar = $contents->getFullPath() . "/{$part}";
+                $dest->trackFolder($part, ['Key' => $pathSoFar ]);
             }
             $dest = $dest->getFolder($part, $onFatal);
         }
 
         // now that the parent folders exist, we can safely
         // track the file itself
-        $dest->trackFile($bucketObject['Key'], $bucketObject);
+        $dest->trackFile(basename($bucketObject['Key']), $bucketObject);
     }
 }
