@@ -17,3 +17,5 @@
   - added `CallListObjectsV2'
   - added `GetFileInfoByPath`
   - added `GetFilesystemContents`
+* Added support for DI containers
+  - added `S3FilesystemFactory`
