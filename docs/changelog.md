@@ -19,3 +19,5 @@
   - added `GetFilesystemContents`
 * Added support for DI containers
   - added `S3FilesystemFactory`
+* Added basic filesystem operations
+  - added `GetFileContents` operation
