@@ -83,7 +83,7 @@ class GetFileInfoByPath
 
         // general case
         $retval = $contents;
-        foreach (Iterators\GetFullPath::of($fs, $path) as $pathSoFar) {
+        foreach (Iterators\DescendPath::using($fs, $path) as $pathSoFar) {
             $part = $pathSoFar->getBasename();
             if (!$retval->hasFolder($part)) {
                 throw $onFatal("{$pathSoFar}", "path not found");

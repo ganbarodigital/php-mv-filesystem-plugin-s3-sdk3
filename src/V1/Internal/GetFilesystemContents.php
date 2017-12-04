@@ -109,7 +109,7 @@ class GetFilesystemContents
         $dest = $contents;
 
         // make sure all the parent folders exist
-        foreach (Iterators\GetParentFolders::of($fs, $bucketObject['Key']) as $pathSoFar) {
+        foreach (Iterators\DescendParentFolders::of($fs, $bucketObject['Key']) as $pathSoFar) {
             $part = $pathSoFar->getBasename();
 
             if (!$dest->hasFolder($part)) {

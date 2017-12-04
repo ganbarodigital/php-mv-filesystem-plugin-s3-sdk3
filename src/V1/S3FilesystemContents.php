@@ -152,7 +152,7 @@ class S3FilesystemContents extends S3FileInfo implements FilesystemContents
     public function trackFile(string $filename, $fileDetails)
     {
         $this->contents[$filename] = new S3FileInfo(
-            $this->withSuffix($filename), $fileDetails
+            $this->withChild($filename), $fileDetails
         );
     }
 
@@ -206,7 +206,7 @@ class S3FilesystemContents extends S3FileInfo implements FilesystemContents
      */
     public function trackFolder(string $filename, $fileInfo)
     {
-        $fullPath = (string)$this->withSuffix($filename);
+        $fullPath = (string)$this->withChild($filename);
 
         $this->contents[$filename] = new S3FilesystemContents(
             $fullPath,
