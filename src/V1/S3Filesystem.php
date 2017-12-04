@@ -150,7 +150,7 @@ class S3Filesystem implements Filesystem
      */
     public function getFolder($fullPath, OnFatal $onFatal) : FilesystemContents
     {
-        return Internal\GetFileInfoByPath::from($this->contents, $fullPath, $onFatal);
+        return Internal\GetFileInfoByPath::from($this, $this->contents, $fullPath, $onFatal);
     }
 
     /**
@@ -164,7 +164,7 @@ class S3Filesystem implements Filesystem
      */
     public function getFileInfo($fullPath, OnFatal $onFatal) : FileInfo
     {
-        return Internal\GetFileInfoByPath::from($this->contents, $fullPath, $onFatal);
+        return Internal\GetFileInfoByPath::from($this, $this->contents, $fullPath, $onFatal);
     }
 
     // ==================================================================

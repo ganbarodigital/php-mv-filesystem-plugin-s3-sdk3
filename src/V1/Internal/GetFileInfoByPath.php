@@ -58,6 +58,8 @@ class GetFileInfoByPath
     /**
      * find a file or folder by its path
      *
+     * @param  S3Filesystem $fs
+     *         the filesystem we are searching
      * @param  S3FilesystemContents $contents
      *         what's in the S3 bucket
      * @param  string|PathInfo $path
@@ -67,7 +69,7 @@ class GetFileInfoByPath
      * @return S3FileInfo
      *         the file or folder at that path
      */
-    public static function from(S3FilesystemContents $contents, $path, OnFatal $onFatal) : S3FileInfo
+    public static function from(S3Filesystem $fs, S3FilesystemContents $contents, $path, OnFatal $onFatal) : S3FileInfo
     {
         // what are we looking at?
         $pathInfo = TypeConverters\ToPathInfo::from($path);
