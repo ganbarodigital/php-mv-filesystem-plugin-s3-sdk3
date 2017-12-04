@@ -44,6 +44,7 @@
 namespace GanbaroDigital\S3Filesystem\V1\Internal;
 
 use GanbaroDigital\MissingBits\ErrorResponders\OnFatal;
+use GanbaroDigital\Filesystem\V1\Iterators;
 use GanbaroDigital\Filesystem\V1\PathInfo;
 use GanbaroDigital\Filesystem\V1\TypeConverters;
 use GanbaroDigital\S3Filesystem\V1\S3FileInfo;
@@ -81,19 +82,13 @@ class GetFileInfoByPath
         }
 
         // general case
-        $parts = explode("/", $fullPath);
-        if ($parts[0] == '') {
-            array_shift($parts);
-        }
-
         $retval = $contents;
-        $seen = $pathInfo->getFilesystemPrefix();
-        foreach ($parts as $part) {
+        foreach (Iterators\GetFullPath::of($fs, $path) as $pathSoFar) {
+            $part = $pathSoFar->getBasename();
             if (!$retval->hasFolder($part)) {
-                throw $onFatal("{$seen}/{$part}", "path not found");
+                throw $onFatal("{$pathSoFar}", "path not found");
             }
             $retval = $retval->getFolder($part, $onFatal);
-            $seen .= "/{$part}";
         }
 
         // all done

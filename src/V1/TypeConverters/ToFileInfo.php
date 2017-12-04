@@ -75,9 +75,6 @@ class ToFileInfo implements PluginClass
 
         // it needs converting, which means we need to go and learn
         // about this path
-
-        // TODO - get info from the filesystem contents
-        $contents = $fs->getContents();
-        return Internal\GetFileInfoByPath::from($contents, $path, $onFatal);
+        return $fs->getFileInfo($path, $onFatal);
     }
 }

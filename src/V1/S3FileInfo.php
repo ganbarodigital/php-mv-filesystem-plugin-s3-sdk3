@@ -203,8 +203,18 @@ class S3FileInfo extends S3PathInfo implements FileInfo
         return true;
     }
 
+    /**
+     * what is the checksum for this file?
+     *
+     * ETags are a common technique to tell if a file has changed anywhere
+     * or not
+     *
+     * @return string
+     */
     public function getETag() : string
     {
-        return $this->fileInfo['ETag'] ?? '';
+        // for some reason I don't yet understand, minio.io (S3 dev service)
+        // returns ETags surrounded by quotes
+        return trim($this->fileInfo['ETag'] ?? '', '"');
     }
 }

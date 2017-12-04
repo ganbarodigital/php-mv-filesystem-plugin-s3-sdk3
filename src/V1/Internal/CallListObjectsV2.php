@@ -69,7 +69,7 @@ class CallListObjectsV2
 
         $apiParams = [
             'Bucket' => $bucketName,
-            'Prefix' => $path,
+            'Prefix' => ltrim($path, '/'),
         ];
         if ($continuationToken !== null) {
             $apiParams['ContinuationToken'] = $continuationToken;

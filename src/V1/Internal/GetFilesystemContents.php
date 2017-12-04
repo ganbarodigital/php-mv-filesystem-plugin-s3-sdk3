@@ -43,6 +43,7 @@
 
 namespace GanbaroDigital\S3Filesystem\V1\Internal;
 
+use GanbaroDigital\Filesystem\V1\Iterators;
 use GanbaroDigital\Filesystem\V1\PathInfo;
 use GanbaroDigital\Filesystem\V1\TypeConverters;
 use GanbaroDigital\MissingBits\ErrorResponders\OnFatal;
@@ -81,7 +82,7 @@ class GetFilesystemContents
             $continuationToken = $result['NextContinuationToken'] ?? null;
 
             foreach ($result['Contents'] ?? [] as $bucketObject) {
-                static::addContent($retval, $bucketObject);
+                static::addContent($fs, $retval, $bucketObject);
             }
         } while ($continuationToken !== null);
 
@@ -97,14 +98,8 @@ class GetFilesystemContents
      * @param array $bucketObject
      *        the item we want to add
      */
-    protected static function addContent(S3FilesystemContents $contents, array $bucketObject)
+    protected static function addContent(S3Filesystem $fs, S3FilesystemContents $contents, array $bucketObject)
     {
-        $dirname = dirname($bucketObject['Key']);
-        $parts = explode("/", $dirname);
-        if ($parts[0] == '') {
-            array_shift($parts);
-        }
-
         // what do we do if we can't find the folder we're looking for?
         $onFatal = new OnFatal(function($path, $reason) {
             throw new \RuntimeException("Cannot find $path: $reason");
@@ -114,9 +109,10 @@ class GetFilesystemContents
         $dest = $contents;
 
         // make sure all the parent folders exist
-        foreach ($parts as $part) {
+        foreach (Iterators\GetParentFolders::of($fs, $bucketObject['Key']) as $pathSoFar) {
+            $part = $pathSoFar->getBasename();
+
             if (!$dest->hasFolder($part)) {
-                $pathSoFar = $contents->getFullPath() . "/{$part}";
                 $dest->trackFolder($part, ['Key' => $pathSoFar ]);
             }
             $dest = $dest->getFolder($part, $onFatal);
