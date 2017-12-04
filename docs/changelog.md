@@ -21,3 +21,4 @@
   - added `S3FilesystemFactory`
 * Added basic filesystem operations
   - added `GetFileContents` operation
+  - added `PutFileContents` operation
