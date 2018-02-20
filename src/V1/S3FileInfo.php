@@ -43,6 +43,7 @@
 
 namespace GanbaroDigital\S3Filesystem\V1;
 
+use DateTime;
 use GanbaroDigital\Filesystem\V1\FileInfo;
 
 /**
@@ -216,5 +217,15 @@ class S3FileInfo extends S3PathInfo implements FileInfo
         // for some reason I don't yet understand, minio.io (S3 dev service)
         // returns ETags surrounded by quotes
         return trim($this->fileInfo['ETag'] ?? '', '"');
+    }
+
+    /**
+     * when was this file last modified?
+     *
+     * @return DateTime
+     */
+    public function getLastModified() : DateTime
+    {
+        return new DateTime($this->fileInfo['LastModified']);
     }
 }
