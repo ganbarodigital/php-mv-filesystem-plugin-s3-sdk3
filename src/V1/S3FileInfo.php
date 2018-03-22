@@ -220,6 +220,18 @@ class S3FileInfo extends S3PathInfo implements FileInfo
     }
 
     /**
+     * what additional info do we know about the file?
+     *
+     * the contents are filesystem-specific!
+     *
+     * @return array
+     */
+    public function getMetadata(): array
+    {
+        return $this->fileInfo['Metadata'] ?? [];
+    }
+
+    /**
      * when was this file last modified?
      *
      * @return DateTime

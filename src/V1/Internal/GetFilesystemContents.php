@@ -82,6 +82,8 @@ class GetFilesystemContents
             $continuationToken = $result['NextContinuationToken'] ?? null;
 
             foreach ($result['Contents'] ?? [] as $bucketObject) {
+                $s3Meta = Internal\CallHeadObject::using($fs, $bucketObject['Key']);
+                $bucketObject['Metadata'] = $s3Meta['Metadata'];
                 static::addContent($fs, $retval, $bucketObject);
             }
         } while ($continuationToken !== null);

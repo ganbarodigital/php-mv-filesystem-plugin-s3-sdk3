@@ -22,3 +22,6 @@
 * Added basic filesystem operations
   - added `GetFileContents` operation
   - added `PutFileContents` operation
+* Added key/value metadata support
+  - added `GetFileMetadata` operation
+  - added `PutFileMetadata` operation
