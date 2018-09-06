@@ -33,32 +33,43 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *
+ * @category  Libraries
+ * @package   S3Filesystem/V1/Internal
  * @author    Stuart Herbert <stuherbert@ganbarodigital.com>
  * @copyright 2017-present Ganbaro Digital Ltd www.ganbarodigital.com
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link      http://ganbarodigital.github.io/php-mv-filesystem-plugin-s3-sdk3
  */
 
-namespace GanbaroDigital\S3Filesystem\V1\Operations;
+namespace GanbaroDigital\S3Filesystem\V1\Internal;
 
-use GanbaroDigital\AdaptersAndPlugins\V1\PluginTypes\PluginClass;
-use GanbaroDigital\Filesystem\V1\Checks;
-use GanbaroDigital\Filesystem\V1\TypeConverters;
-use GanbaroDigital\S3Filesystem\V1\Internal;
+use Aws\S3\Exception\S3Exception;
 use GanbaroDigital\S3Filesystem\V1\S3Filesystem;
-use GanbaroDigital\MissingBits\ErrorResponders\OnFatal;
 
-class GetFileContents implements PluginClass
+/**
+ * download an object from S3
+ */
+class CallGetObject
 {
-    public static function using(S3Filesystem $fs, $path, OnFatal $onFatal)
+    /**
+     * download an object from S3
+     *
+     * @param  S3Filesystem $fs
+     *         our S3 filesystem to retrieve from
+     * @param  string $path
+     *         the S3 key we want to retrieve
+     * @return array
+     *         the result from S3
+     */
+    public static function using(S3Filesystem $fs, string $path)
     {
-        // what are we looking at?
-        $pathInfo = TypeConverters\ToPathInfo::from($path);
+        $apiCall = function() use($fs, $path) {
+            return $fs->getClient()->GetObject([
+                'Bucket'     => $fs->getBucketName(),
+                'Key'        => $path,
+            ]);
+        };
 
-        // go get it!
-        $result = Internal\CallGetObject::using($fs, $pathInfo->getFullPath());
-
-        // success?
-        return $result['Body'];
+        return CallAwsApi::using($apiCall);
     }
 }

@@ -33,32 +33,61 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *
+ * @category  Libraries
+ * @package   S3Filesystem/V1/Internal
  * @author    Stuart Herbert <stuherbert@ganbarodigital.com>
  * @copyright 2017-present Ganbaro Digital Ltd www.ganbarodigital.com
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
  * @link      http://ganbarodigital.github.io/php-mv-filesystem-plugin-s3-sdk3
  */
 
-namespace GanbaroDigital\S3Filesystem\V1\Operations;
+namespace GanbaroDigital\S3Filesystem\V1\Internal;
 
-use GanbaroDigital\AdaptersAndPlugins\V1\PluginTypes\PluginClass;
-use GanbaroDigital\Filesystem\V1\Checks;
-use GanbaroDigital\Filesystem\V1\TypeConverters;
-use GanbaroDigital\S3Filesystem\V1\Internal;
+use Aws\S3\Exception\S3Exception;
 use GanbaroDigital\S3Filesystem\V1\S3Filesystem;
-use GanbaroDigital\MissingBits\ErrorResponders\OnFatal;
+use GuzzleHttp\Exception\RequestException;
 
-class GetFileContents implements PluginClass
+/**
+ * call the AWS API
+ */
+class CallAwsApi
 {
-    public static function using(S3Filesystem $fs, $path, OnFatal $onFatal)
+    /**
+     * call the AWS API
+     *
+     * @param  callable $apiCall
+     *         the function that does the work
+     * @return mixed
+     *         the result from $apiCall
+     */
+    public static function using(callable $apiCall)
     {
-        // what are we looking at?
-        $pathInfo = TypeConverters\ToPathInfo::from($path);
+        // we see random TLS-related failures from S3 nodes from time
+        // to time
+        //
+        // this is why we've got this auto-retry capability
+        while (true) {
+            try {
+                return $apiCall();
+            }
+            catch (S3Exception $e) {
+                // is this something we can reuse?
+                $msg = $e->getMessage();
 
-        // go get it!
-        $result = Internal\CallGetObject::using($fs, $pathInfo->getFullPath());
+                // can we safely retry?
+                if (strpos($msg, 'error setting certificate verify locations') == false) {
+                    throw $e;
+                }
+            }
+            catch (RequestException $e) {
+                // is this something we can reuse?
+                $msg = $e->getMessage();
 
-        // success?
-        return $result['Body'];
+                // can we safely retry?
+                if (strpos($msg, 'error setting certificate verify locations') == false) {
+                    throw $e;
+                }
+            }
+        }
     }
 }

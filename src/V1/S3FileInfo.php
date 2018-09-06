@@ -216,6 +216,9 @@ class S3FileInfo extends S3PathInfo implements FileInfo
     {
         // for some reason I don't yet understand, minio.io (S3 dev service)
         // returns ETags surrounded by quotes
+        //
+        // be aware that ETag can sometimes be empty when using minio.io
+        // too
         return trim($this->fileInfo['ETag'] ?? '', '"');
     }
 

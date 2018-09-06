@@ -72,6 +72,10 @@ class CallHeadObject
             'Key' => ltrim($path),
         ];
 
-        return $s3Client->headObject($apiParams);
+        $apiCall = function () use ($s3Client, $apiParams) {
+            return $s3Client->headObject($apiParams);
+        };
+
+        return CallAwsApi::using($apiCall);
     }
 }
